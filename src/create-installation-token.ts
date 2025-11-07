@@ -11,6 +11,11 @@ interface GitHubAppConfig {
 async function createInstallationAccessToken(config: GitHubAppConfig): Promise<string> {
   const { appId, privateKey, clientId, clientSecret, installationId } = config;
 
+  // Validate private key format
+  if (!privateKey.includes('BEGIN') || !privateKey.includes('PRIVATE KEY')) {
+    throw new Error('Invalid private key format. Expected a PEM-formatted private key.');
+  }
+
   // Create the authentication instance
   const auth = createAppAuth({
     appId,
