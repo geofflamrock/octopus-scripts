@@ -40,6 +40,8 @@ Example:
 .\scripts\create-installation-token.ps1 -AppId "123456" -PrivateKey "-----BEGIN RSA PRIVATE KEY-----..." -ClientId "Iv1.abc123" -ClientSecret "secret123" -RepositoryOwner "octocat" -RepositoryName "Hello-World"
 ```
 
+**Octopus Deploy Integration**: When running inside Octopus Deploy, the PowerShell script automatically exports the generated token as a sensitive output variable named `token` using the `Set-OctopusVariable` function. This allows the token to be used in subsequent deployment steps.
+
 #### Using Command-Line Arguments
 
 ```bash
