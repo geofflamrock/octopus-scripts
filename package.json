@@ -1,0 +1,21 @@
+{
+  "name": "octopus-scripts",
+  "version": "1.0.0",
+  "description": "Scripts to do things in Octopus",
+  "main": "dist/create-installation-token.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/create-installation-token.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@octokit/auth-app": "^8.1.2"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.0",
+    "typescript": "^5.9.3"
+  }
+}
