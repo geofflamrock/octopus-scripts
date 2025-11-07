@@ -4,7 +4,7 @@
   "description": "Scripts to do things in Octopus",
   "main": "dist/create-installation-token.js",
   "scripts": {
-    "build": "tsc",
+    "build": "esbuild src/create-installation-token.ts --bundle --platform=node --target=node20 --outfile=dist/create-installation-token.js --sourcemap",
     "start": "node dist/create-installation-token.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -17,6 +17,7 @@
   },
   "devDependencies": {
     "@types/node": "^24.10.0",
+    "esbuild": "^0.25.12",
     "typescript": "^5.9.3"
   }
 }

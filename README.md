@@ -8,9 +8,16 @@ This Node.js TypeScript project provides a script to create an installation acce
 ### Prerequisites
 
 - Node.js (v20 or higher)
-- npm
 
 ### Installation
+
+The compiled script in the `dist/` folder is self-contained and bundles all dependencies. You can run it directly without installing any npm packages:
+
+```bash
+node dist/create-installation-token.js
+```
+
+If you want to modify the source code and rebuild:
 
 1. Clone this repository
 2. Install dependencies:
@@ -18,7 +25,7 @@ This Node.js TypeScript project provides a script to create an installation acce
 npm install
 ```
 
-3. Build the TypeScript project:
+3. Build the TypeScript project (uses esbuild to bundle all dependencies):
 ```bash
 npm run build
 ```
@@ -79,26 +86,6 @@ The script outputs the installation access token to stdout. If an error occurs, 
 
 ### Development
 
-- Build the project: `npm run build`
+- Build the project: `npm run build` (uses esbuild to create a bundled, self-contained script)
 - Run the script: `npm start`
-
-### API
-
-The script also exports the `createInstallationAccessToken` function that can be imported and used in other TypeScript/JavaScript projects:
-
-```typescript
-import { createInstallationAccessToken, GitHubAppConfig } from './create-installation-token';
-
-const config: GitHubAppConfig = {
-  appId: 'your-app-id',
-  privateKey: 'your-private-key',
-  clientId: 'your-client-id',
-  clientSecret: 'your-client-secret',
-  repositoryOwner: 'octocat',
-  repositoryName: 'Hello-World'
-};
-
-const token = await createInstallationAccessToken(config);
-console.log(token);
-```
 
