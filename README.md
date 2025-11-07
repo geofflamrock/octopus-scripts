@@ -27,6 +27,19 @@ npm run build
 
 The script accepts GitHub App credentials either through command-line arguments or environment variables.
 
+#### Using PowerShell (Windows)
+
+A PowerShell wrapper script is provided for convenience:
+
+```powershell
+.\scripts\create-installation-token.ps1 -AppId <appId> -PrivateKey <privateKey> -ClientId <clientId> -ClientSecret <clientSecret> -InstallationId <installationId>
+```
+
+Example:
+```powershell
+.\scripts\create-installation-token.ps1 -AppId "123456" -PrivateKey "-----BEGIN RSA PRIVATE KEY-----..." -ClientId "Iv1.abc123" -ClientSecret "secret123" -InstallationId "78910"
+```
+
 #### Using Command-Line Arguments
 
 ```bash
