@@ -3,7 +3,8 @@ interface GitHubAppConfig {
     privateKey: string;
     clientId: string;
     clientSecret: string;
-    installationId: string;
+    repositoryOwner: string;
+    repositoryName: string;
 }
 declare function createInstallationAccessToken(config: GitHubAppConfig): Promise<string>;
 export { createInstallationAccessToken, GitHubAppConfig };

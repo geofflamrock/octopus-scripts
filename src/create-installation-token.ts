@@ -1,15 +1,17 @@
 import { createAppAuth } from '@octokit/auth-app';
+import { Octokit } from '@octokit/rest';
 
 interface GitHubAppConfig {
   appId: string;
   privateKey: string;
   clientId: string;
   clientSecret: string;
-  installationId: string;
+  repositoryOwner: string;
+  repositoryName: string;
 }
 
 async function createInstallationAccessToken(config: GitHubAppConfig): Promise<string> {
-  const { appId, privateKey, clientId, clientSecret, installationId } = config;
+  const { appId, privateKey, clientId, clientSecret, repositoryOwner, repositoryName } = config;
 
   // Validate private key format
   if (!privateKey.includes('BEGIN') || !privateKey.includes('PRIVATE KEY')) {
@@ -24,10 +26,32 @@ async function createInstallationAccessToken(config: GitHubAppConfig): Promise<s
     clientSecret,
   });
 
+  // Get an app authentication to look up the installation
+  const appAuthentication = await auth({
+    type: 'app',
+  });
+
+  // Create an Octokit instance with app authentication
+  const octokit = new Octokit({
+    auth: appAuthentication.token,
+  });
+
+  // Look up the installation for the repository
+  let installationId: number;
+  try {
+    const { data: installation } = await octokit.apps.getRepoInstallation({
+      owner: repositoryOwner,
+      repo: repositoryName,
+    });
+    installationId = installation.id;
+  } catch (error) {
+    throw new Error(`Failed to find installation for repository ${repositoryOwner}/${repositoryName}: ${error}`);
+  }
+
   // Get the installation access token
   const installationAuthentication = await auth({
     type: 'installation',
-    installationId: Number(installationId),
+    installationId,
   });
 
   return installationAuthentication.token;
@@ -39,21 +63,23 @@ async function main() {
   const privateKey = process.env.GITHUB_PRIVATE_KEY || process.argv[3];
   const clientId = process.env.GITHUB_CLIENT_ID || process.argv[4];
   const clientSecret = process.env.GITHUB_CLIENT_SECRET || process.argv[5];
-  const installationId = process.env.GITHUB_INSTALLATION_ID || process.argv[6];
+  const repositoryOwner = process.env.GITHUB_REPOSITORY_OWNER || process.argv[6];
+  const repositoryName = process.env.GITHUB_REPOSITORY_NAME || process.argv[7];
 
   // Validate all required parameters are provided
-  if (!appId || !privateKey || !clientId || !clientSecret || !installationId) {
+  if (!appId || !privateKey || !clientId || !clientSecret || !repositoryOwner || !repositoryName) {
     console.error('Error: Missing required parameters');
     console.error('');
     console.error('Usage:');
-    console.error('  node dist/create-installation-token.js <appId> <privateKey> <clientId> <clientSecret> <installationId>');
+    console.error('  node dist/create-installation-token.js <appId> <privateKey> <clientId> <clientSecret> <repositoryOwner> <repositoryName>');
     console.error('');
     console.error('Or set environment variables:');
     console.error('  GITHUB_APP_ID');
     console.error('  GITHUB_PRIVATE_KEY');
     console.error('  GITHUB_CLIENT_ID');
     console.error('  GITHUB_CLIENT_SECRET');
-    console.error('  GITHUB_INSTALLATION_ID');
+    console.error('  GITHUB_REPOSITORY_OWNER');
+    console.error('  GITHUB_REPOSITORY_NAME');
     process.exit(1);
   }
 
@@ -63,7 +89,8 @@ async function main() {
       privateKey,
       clientId,
       clientSecret,
-      installationId,
+      repositoryOwner,
+      repositoryName,
     });
 
     console.log(token);

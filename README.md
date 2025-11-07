@@ -3,7 +3,7 @@ Scripts to do things in Octopus
 
 ## GitHub App Installation Access Token Generator
 
-This Node.js TypeScript project provides a script to create an installation access token for a GitHub App using the `@octokit/auth-app` library.
+This Node.js TypeScript project provides a script to create an installation access token for a GitHub App using the `@octokit/auth-app` library. The script automatically looks up the installation ID for a given repository.
 
 ### Prerequisites
 
@@ -32,23 +32,23 @@ The script accepts GitHub App credentials either through command-line arguments 
 A PowerShell wrapper script is provided for convenience:
 
 ```powershell
-.\scripts\create-installation-token.ps1 -AppId <appId> -PrivateKey <privateKey> -ClientId <clientId> -ClientSecret <clientSecret> -InstallationId <installationId>
+.\scripts\create-installation-token.ps1 -AppId <appId> -PrivateKey <privateKey> -ClientId <clientId> -ClientSecret <clientSecret> -RepositoryOwner <owner> -RepositoryName <name>
 ```
 
 Example:
 ```powershell
-.\scripts\create-installation-token.ps1 -AppId "123456" -PrivateKey "-----BEGIN RSA PRIVATE KEY-----..." -ClientId "Iv1.abc123" -ClientSecret "secret123" -InstallationId "78910"
+.\scripts\create-installation-token.ps1 -AppId "123456" -PrivateKey "-----BEGIN RSA PRIVATE KEY-----..." -ClientId "Iv1.abc123" -ClientSecret "secret123" -RepositoryOwner "octocat" -RepositoryName "Hello-World"
 ```
 
 #### Using Command-Line Arguments
 
 ```bash
-node dist/create-installation-token.js <appId> <privateKey> <clientId> <clientSecret> <installationId>
+node dist/create-installation-token.js <appId> <privateKey> <clientId> <clientSecret> <repositoryOwner> <repositoryName>
 ```
 
 Example:
 ```bash
-node dist/create-installation-token.js 123456 "-----BEGIN RSA PRIVATE KEY-----..." Iv1.abc123 secret123 78910
+node dist/create-installation-token.js 123456 "-----BEGIN RSA PRIVATE KEY-----..." Iv1.abc123 secret123 octocat Hello-World
 ```
 
 #### Using Environment Variables
@@ -58,7 +58,8 @@ Set the following environment variables:
 - `GITHUB_PRIVATE_KEY`: Your GitHub App private key
 - `GITHUB_CLIENT_ID`: Your GitHub App client ID
 - `GITHUB_CLIENT_SECRET`: Your GitHub App client secret
-- `GITHUB_INSTALLATION_ID`: The installation ID for your GitHub App
+- `GITHUB_REPOSITORY_OWNER`: The owner (user or organization) of the repository
+- `GITHUB_REPOSITORY_NAME`: The name of the repository
 
 Then run:
 ```bash
@@ -91,7 +92,8 @@ const config: GitHubAppConfig = {
   privateKey: 'your-private-key',
   clientId: 'your-client-id',
   clientSecret: 'your-client-secret',
-  installationId: 'your-installation-id'
+  repositoryOwner: 'octocat',
+  repositoryName: 'Hello-World'
 };
 
 const token = await createInstallationAccessToken(config);

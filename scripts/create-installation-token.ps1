@@ -12,7 +12,10 @@ param(
     [string]$ClientSecret,
     
     [Parameter(Mandatory=$true)]
-    [string]$InstallationId
+    [string]$RepositoryOwner,
+    
+    [Parameter(Mandatory=$true)]
+    [string]$RepositoryName
 )
 
 # Get the script's directory and navigate to the repository root
@@ -37,4 +40,4 @@ try {
 }
 
 # Run the Node.js script with the provided arguments
-node $nodeScript $AppId $PrivateKey $ClientId $ClientSecret $InstallationId
+node $nodeScript $AppId $PrivateKey $ClientId $ClientSecret $RepositoryOwner $RepositoryName
