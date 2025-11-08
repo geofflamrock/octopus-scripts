@@ -7,7 +7,7 @@ This Node.js TypeScript project provides a script to create an installation acce
 
 ### Prerequisites
 
-- Node.js (v20 or higher)
+- Node.js (v24 or higher)
 
 ### Installation
 
