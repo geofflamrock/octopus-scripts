@@ -1,4 +1,4 @@
-name: Test Installation Token
+name: CI
 
 on:
   pull_request:
@@ -26,14 +26,8 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Generate token using GitHub Action
-        uses: actions/create-github-app-token@v2
-        id: app-token
-        with:
-          app-id: ${{ secrets.TEST_GITHUB_APP_ID }}
-          private-key: ${{ secrets.TEST_GITHUB_PRIVATE_KEY }}
-          owner: ${{ vars.TEST_GITHUB_REPOSITORY_OWNER }}
-          repositories: ${{ vars.TEST_GITHUB_REPOSITORY_NAME }}
+      - name: Run tests
+        run: npm run test
 
       - name: Run create-installation-token
         env:
