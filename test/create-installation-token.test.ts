@@ -1,17 +1,20 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { createInstallationAccessToken, GitHubAppConfig } from '../src/create-installation-token';
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import {
+  createInstallationAccessToken,
+  GitHubAppConfig,
+} from "../src/create-installation-token";
 
 // Mock the Octokit modules
-vi.mock('@octokit/auth-app', () => ({
+vi.mock("@octokit/auth-app", () => ({
   createAppAuth: vi.fn(),
 }));
 
-vi.mock('@octokit/rest', () => ({
+vi.mock("@octokit/rest", () => ({
   Octokit: vi.fn(),
 }));
 
-import { createAppAuth } from '@octokit/auth-app';
-import { Octokit } from '@octokit/rest';
+import { createAppAuth } from "@octokit/auth-app";
+import { Octokit } from "@octokit/rest";
 
 // Valid test private key
 const VALID_PRIVATE_KEY = `-----BEGIN PRIVATE KEY-----
@@ -43,27 +46,26 @@ M2N+JKmPF8DOT1nNI0NkxJBOmAiXc8siUzmOXrpykpnaBSUAHxGy6Sdd0voJ5ykn
 qEb1kG68zvtipc+XrT+LQAg=
 -----END PRIVATE KEY-----`;
 
-describe('createInstallationAccessToken', () => {
+describe("createInstallationAccessToken", () => {
   const mockConfig: GitHubAppConfig = {
-    appId: '123456',
+    appId: "123456",
     privateKey: VALID_PRIVATE_KEY,
-    clientId: 'Iv1.abc123',
-    clientSecret: 'test-secret',
-    repositoryOwner: 'octocat',
-    repositoryName: 'Hello-World',
+    repositoryOwner: "octocat",
+    repositoryName: "Hello-World",
   };
 
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it('should successfully create an installation access token', async () => {
-    const mockAppToken = 'ghs_mockAppToken123';
-    const mockInstallationToken = 'ghs_mockInstallationToken456';
+  it("should successfully create an installation access token", async () => {
+    const mockAppToken = "ghs_mockAppToken123";
+    const mockInstallationToken = "ghs_mockInstallationToken456";
     const mockInstallationId = 12345;
 
     // Mock the createAppAuth function
-    const mockAuth = vi.fn()
+    const mockAuth = vi
+      .fn()
       .mockResolvedValueOnce({ token: mockAppToken }) // First call for app authentication
       .mockResolvedValueOnce({ token: mockInstallationToken }); // Second call for installation authentication
 
@@ -74,7 +76,7 @@ describe('createInstallationAccessToken', () => {
       data: {
         id: mockInstallationId,
         app_id: 123456,
-        target_type: 'Repository',
+        target_type: "Repository",
       },
     });
 
@@ -90,38 +92,41 @@ describe('createInstallationAccessToken', () => {
     expect(createAppAuth).toHaveBeenCalledWith({
       appId: mockConfig.appId,
       privateKey: mockConfig.privateKey,
-      clientId: mockConfig.clientId,
-      clientSecret: mockConfig.clientSecret,
     });
     expect(mockAuth).toHaveBeenCalledTimes(2);
-    expect(mockAuth).toHaveBeenNthCalledWith(1, { type: 'app' });
-    expect(mockAuth).toHaveBeenNthCalledWith(2, { type: 'installation', installationId: mockInstallationId });
+    expect(mockAuth).toHaveBeenNthCalledWith(1, { type: "app" });
+    expect(mockAuth).toHaveBeenNthCalledWith(2, {
+      type: "installation",
+      installationId: mockInstallationId,
+    });
     expect(mockGetRepoInstallation).toHaveBeenCalledWith({
       owner: mockConfig.repositoryOwner,
       repo: mockConfig.repositoryName,
     });
   });
 
-  it('should throw error for invalid private key format', async () => {
+  it("should throw error for invalid private key format", async () => {
     const invalidConfig = {
       ...mockConfig,
-      privateKey: 'invalid-key-format',
+      privateKey: "invalid-key-format",
     };
 
     await expect(createInstallationAccessToken(invalidConfig)).rejects.toThrow(
-      'Invalid private key format. Expected a PEM-formatted private key.'
+      "Invalid private key format. Expected a PEM-formatted private key."
     );
 
     expect(createAppAuth).not.toHaveBeenCalled();
   });
 
-  it('should throw error when repository installation is not found', async () => {
-    const mockAppToken = 'ghs_mockAppToken123';
+  it("should throw error when repository installation is not found", async () => {
+    const mockAppToken = "ghs_mockAppToken123";
     const mockAuth = vi.fn().mockResolvedValueOnce({ token: mockAppToken });
     (createAppAuth as any).mockReturnValue(mockAuth);
 
     // Mock Octokit to throw 404 error
-    const mockGetRepoInstallation = vi.fn().mockRejectedValue(new Error('Not Found'));
+    const mockGetRepoInstallation = vi
+      .fn()
+      .mockRejectedValue(new Error("Not Found"));
     (Octokit as any).mockImplementation(function (this: any) {
       this.apps = {
         getRepoInstallation: mockGetRepoInstallation,
@@ -133,23 +138,24 @@ describe('createInstallationAccessToken', () => {
     );
 
     expect(mockGetRepoInstallation).toHaveBeenCalledWith({
-      owner: 'octocat',
-      repo: 'Hello-World',
+      owner: "octocat",
+      repo: "Hello-World",
     });
   });
 
-  it('should handle different repository owners and names', async () => {
-    const mockAppToken = 'ghs_mockAppToken123';
-    const mockInstallationToken = 'ghs_customToken789';
+  it("should handle different repository owners and names", async () => {
+    const mockAppToken = "ghs_mockAppToken123";
+    const mockInstallationToken = "ghs_customToken789";
     const mockInstallationId = 67890;
 
     const customConfig = {
       ...mockConfig,
-      repositoryOwner: 'testorg',
-      repositoryName: 'test-repo',
+      repositoryOwner: "testorg",
+      repositoryName: "test-repo",
     };
 
-    const mockAuth = vi.fn()
+    const mockAuth = vi
+      .fn()
       .mockResolvedValueOnce({ token: mockAppToken })
       .mockResolvedValueOnce({ token: mockInstallationToken });
 
@@ -159,7 +165,7 @@ describe('createInstallationAccessToken', () => {
       data: {
         id: mockInstallationId,
         app_id: 123456,
-        target_type: 'Repository',
+        target_type: "Repository",
       },
     });
 
@@ -173,39 +179,40 @@ describe('createInstallationAccessToken', () => {
 
     expect(token).toBe(mockInstallationToken);
     expect(mockGetRepoInstallation).toHaveBeenCalledWith({
-      owner: 'testorg',
-      repo: 'test-repo',
+      owner: "testorg",
+      repo: "test-repo",
     });
   });
 
-  it('should validate that private key contains BEGIN marker', async () => {
+  it("should validate that private key contains BEGIN marker", async () => {
     const invalidConfig = {
       ...mockConfig,
-      privateKey: 'PRIVATE KEY-----\nkey content\n-----END PRIVATE KEY-----',
+      privateKey: "PRIVATE KEY-----\nkey content\n-----END PRIVATE KEY-----",
     };
 
     await expect(createInstallationAccessToken(invalidConfig)).rejects.toThrow(
-      'Invalid private key format'
+      "Invalid private key format"
     );
   });
 
-  it('should validate that private key contains PRIVATE KEY text', async () => {
+  it("should validate that private key contains PRIVATE KEY text", async () => {
     const invalidConfig = {
       ...mockConfig,
-      privateKey: '-----BEGIN RSA-----\nkey content\n-----END RSA-----',
+      privateKey: "-----BEGIN RSA-----\nkey content\n-----END RSA-----",
     };
 
     await expect(createInstallationAccessToken(invalidConfig)).rejects.toThrow(
-      'Invalid private key format'
+      "Invalid private key format"
     );
   });
 
-  it('should pass the app authentication token to Octokit', async () => {
-    const mockAppToken = 'ghs_appToken999';
-    const mockInstallationToken = 'ghs_installToken888';
+  it("should pass the app authentication token to Octokit", async () => {
+    const mockAppToken = "ghs_appToken999";
+    const mockInstallationToken = "ghs_installToken888";
     const mockInstallationId = 11111;
 
-    const mockAuth = vi.fn()
+    const mockAuth = vi
+      .fn()
       .mockResolvedValueOnce({ token: mockAppToken })
       .mockResolvedValueOnce({ token: mockInstallationToken });
 
@@ -228,4 +235,3 @@ describe('createInstallationAccessToken', () => {
     expect(capturedAuth).toBe(mockAppToken);
   });
 });
-
