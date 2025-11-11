@@ -1,0 +1,38 @@
+name: Build and test
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Run tests
+        run: npm run test
+
+      - name: Run create-installation-token
+        env:
+          GITHUB_APP_ID: ${{ secrets.TEST_GITHUB_APP_ID }}
+          GITHUB_PRIVATE_KEY: ${{ secrets.TEST_GITHUB_PRIVATE_KEY }}
+          GITHUB_REPOSITORY_OWNER: ${{ vars.TEST_GITHUB_REPOSITORY_OWNER }}
+          GITHUB_REPOSITORY_NAME: ${{ vars.TEST_GITHUB_REPOSITORY_NAME }}
+        run: node dist/create-installation-token.js

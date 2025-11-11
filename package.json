@@ -1,0 +1,28 @@
+{
+  "name": "octopus-scripts",
+  "version": "1.0.0",
+  "description": "Scripts to do things in Octopus",
+  "main": "dist/create-installation-token.js",
+  "scripts": {
+    "build": "esbuild src/create-installation-token.ts --bundle --platform=node --target=node24 --outfile=dist/create-installation-token.js --sourcemap --minify",
+    "start": "node dist/create-installation-token.js",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:ui": "vitest --ui"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@octokit/auth-app": "^8.1.2",
+    "@octokit/rest": "^22.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.0",
+    "@vitest/ui": "^4.0.8",
+    "esbuild": "^0.25.12",
+    "msw": "^2.12.0",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.8"
+  }
+}
