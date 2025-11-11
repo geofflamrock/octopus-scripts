@@ -42,7 +42,7 @@ The script accepts GitHub App credentials either through command-line arguments 
 A PowerShell wrapper script is provided for convenience:
 
 ```powershell
-.\scripts\create-installation-token.ps1 -AppId <appId> -PrivateKey <privateKey> -RepositoryOwner <owner> -RepositoryName <name>
+.\scripts\create-installation-token.ps1 -AppId <appId> -PrivateKey <privateKey> -RepositoryOwner <owner> -RepositoryName <name> [-Permissions <permissions>]
 ```
 
 Example:
@@ -51,18 +51,32 @@ Example:
 .\scripts\create-installation-token.ps1 -AppId "123456" -PrivateKey "-----BEGIN RSA PRIVATE KEY-----..." -RepositoryOwner "octocat" -RepositoryName "Hello-World"
 ```
 
+With permissions:
+
+```powershell
+.\scripts\create-installation-token.ps1 -AppId "123456" -PrivateKey "-----BEGIN RSA PRIVATE KEY-----..." -RepositoryOwner "octocat" -RepositoryName "Hello-World" -Permissions "contents:write`npull_requests:read"
+```
+
 **Octopus Deploy Integration**: When running inside Octopus Deploy, the PowerShell script automatically exports the generated token as a sensitive output variable named `token` using the `Set-OctopusVariable` function. This allows the token to be used in subsequent deployment steps.
 
 #### Using Command-Line Arguments
 
 ```bash
-node dist/create-installation-token.js <appId> <privateKey> <repositoryOwner> <repositoryName>
+node dist/create-installation-token.js <appId> <privateKey> <repositoryOwner> <repositoryName> [permissions]
 ```
 
 Example:
 
 ```bash
 node dist/create-installation-token.js 123456 "-----BEGIN RSA PRIVATE KEY-----..." octocat Hello-World
+```
+
+With permissions (multi-line format):
+
+```bash
+node dist/create-installation-token.js 123456 "-----BEGIN RSA PRIVATE KEY-----..." octocat Hello-World "contents:write
+pull_requests:read
+issues:write"
 ```
 
 #### Using Environment Variables
@@ -73,6 +87,7 @@ Set the following environment variables:
 - `GITHUB_PRIVATE_KEY`: Your GitHub App private key
 - `GITHUB_REPOSITORY_OWNER`: The owner (user or organization) of the repository
 - `GITHUB_REPOSITORY_NAME`: The name of the repository
+- `GITHUB_PERMISSIONS` (optional): A multi-line string specifying permissions in the format `permission:level`, one per line (e.g., `contents:write`)
 
 Then run:
 
@@ -85,6 +100,24 @@ Or:
 ```bash
 node dist/create-installation-token.js
 ```
+
+### Permissions
+
+The optional `permissions` parameter allows you to specify the permissions for the generated installation access token. Permissions are specified in the format `permission:level`, with one permission per line.
+
+**Supported permission levels:**
+- `read`: Read-only access
+- `write`: Read and write access
+
+**Example permissions:**
+- `contents:write` - Read and write access to repository contents
+- `pull_requests:read` - Read-only access to pull requests
+- `issues:write` - Read and write access to issues
+- `metadata:read` - Read access to repository metadata
+
+For a complete list of available permissions, see [GitHub App Permissions](https://docs.github.com/en/rest/overview/permissions-required-for-github-apps).
+
+**Note:** The GitHub App must already have these permissions configured. This parameter restricts the token to a subset of the app's permissions, it cannot grant permissions the app doesn't have.
 
 ### Output
 
