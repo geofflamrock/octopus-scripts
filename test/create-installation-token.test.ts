@@ -110,6 +110,7 @@ describe("createInstallationAccessToken", () => {
     expect(mockAuth).toHaveBeenNthCalledWith(2, {
       type: "installation",
       installationId: mockInstallationId,
+      repositories: [mockConfig.repositoryName],
     });
     expect(mockGetRepoInstallation).toHaveBeenCalledWith({
       owner: mockConfig.repositoryOwner,
@@ -259,6 +260,44 @@ describe("createInstallationAccessToken", () => {
     await createInstallationAccessToken(mockConfig);
 
     expect(capturedAuth).toBe(mockAppToken);
+  });
+
+  it("should restrict installation token to the specific repository", async () => {
+    const mockAppToken = "ghs_mockAppToken123";
+    const mockInstallationToken = "ghs_mockInstallationToken456";
+    const mockInstallationId = 12345;
+
+    // Mock the createAppAuth function
+    const mockAuth = vi
+      .fn()
+      .mockResolvedValueOnce({ token: mockAppToken })
+      .mockResolvedValueOnce({ token: mockInstallationToken });
+
+    (createAppAuth as any).mockReturnValue(mockAuth);
+
+    // Mock Octokit instance
+    const mockGetRepoInstallation = vi.fn().mockResolvedValue({
+      data: {
+        id: mockInstallationId,
+        app_id: 123456,
+        target_type: "Repository",
+      },
+    });
+
+    (Octokit as any).mockImplementation(function (this: any) {
+      this.apps = {
+        getRepoInstallation: mockGetRepoInstallation,
+      };
+    });
+
+    await createInstallationAccessToken(mockConfig);
+
+    // Verify that the installation token was created with repository restriction
+    expect(mockAuth).toHaveBeenNthCalledWith(2, {
+      type: "installation",
+      installationId: mockInstallationId,
+      repositories: ["Hello-World"],
+    });
   });
 
   it("should pass permissions to auth when provided", async () => {
@@ -454,7 +493,9 @@ describe("parsePermissions", () => {
   });
 
   it("should skip lines without colon separator", () => {
-    const result = parsePermissions("contents:write\ninvalid_line\nissues:read");
+    const result = parsePermissions(
+      "contents:write\ninvalid_line\nissues:read"
+    );
     expect(result).toEqual({
       contents: "write",
       issues: "read",
