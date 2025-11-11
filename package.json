@@ -4,7 +4,7 @@
   "description": "Scripts to do things in Octopus",
   "main": "dist/create-installation-token.js",
   "scripts": {
-    "build": "esbuild src/create-installation-token.ts --bundle --platform=node --target=node24 --outfile=dist/create-installation-token.js --sourcemap",
+    "build": "esbuild src/create-installation-token.ts --bundle --platform=node --target=node24 --outfile=dist/create-installation-token.js --sourcemap --minify",
     "start": "node dist/create-installation-token.js",
     "test": "vitest run",
     "test:watch": "vitest",

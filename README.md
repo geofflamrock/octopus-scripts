@@ -1,4 +1,5 @@
 # octopus-scripts
+
 Scripts to do things in Octopus
 
 ## GitHub App Installation Access Token Generator
@@ -21,11 +22,13 @@ If you want to modify the source code and rebuild:
 
 1. Clone this repository
 2. Install dependencies:
+
 ```bash
 npm install
 ```
 
 3. Build the TypeScript project (uses esbuild to bundle all dependencies):
+
 ```bash
 npm run build
 ```
@@ -39,12 +42,13 @@ The script accepts GitHub App credentials either through command-line arguments 
 A PowerShell wrapper script is provided for convenience:
 
 ```powershell
-.\scripts\create-installation-token.ps1 -AppId <appId> -PrivateKey <privateKey> -ClientId <clientId> -ClientSecret <clientSecret> -RepositoryOwner <owner> -RepositoryName <name>
+.\scripts\create-installation-token.ps1 -AppId <appId> -PrivateKey <privateKey> -RepositoryOwner <owner> -RepositoryName <name>
 ```
 
 Example:
+
 ```powershell
-.\scripts\create-installation-token.ps1 -AppId "123456" -PrivateKey "-----BEGIN RSA PRIVATE KEY-----..." -ClientId "Iv1.abc123" -ClientSecret "secret123" -RepositoryOwner "octocat" -RepositoryName "Hello-World"
+.\scripts\create-installation-token.ps1 -AppId "123456" -PrivateKey "-----BEGIN RSA PRIVATE KEY-----..." -RepositoryOwner "octocat" -RepositoryName "Hello-World"
 ```
 
 **Octopus Deploy Integration**: When running inside Octopus Deploy, the PowerShell script automatically exports the generated token as a sensitive output variable named `token` using the `Set-OctopusVariable` function. This allows the token to be used in subsequent deployment steps.
@@ -52,30 +56,32 @@ Example:
 #### Using Command-Line Arguments
 
 ```bash
-node dist/create-installation-token.js <appId> <privateKey> <clientId> <clientSecret> <repositoryOwner> <repositoryName>
+node dist/create-installation-token.js <appId> <privateKey> <repositoryOwner> <repositoryName>
 ```
 
 Example:
+
 ```bash
-node dist/create-installation-token.js 123456 "-----BEGIN RSA PRIVATE KEY-----..." Iv1.abc123 secret123 octocat Hello-World
+node dist/create-installation-token.js 123456 "-----BEGIN RSA PRIVATE KEY-----..." octocat Hello-World
 ```
 
 #### Using Environment Variables
 
 Set the following environment variables:
+
 - `GITHUB_APP_ID`: Your GitHub App ID
 - `GITHUB_PRIVATE_KEY`: Your GitHub App private key
-- `GITHUB_CLIENT_ID`: Your GitHub App client ID
-- `GITHUB_CLIENT_SECRET`: Your GitHub App client secret
 - `GITHUB_REPOSITORY_OWNER`: The owner (user or organization) of the repository
 - `GITHUB_REPOSITORY_NAME`: The name of the repository
 
 Then run:
+
 ```bash
 npm start
 ```
 
 Or:
+
 ```bash
 node dist/create-installation-token.js
 ```
@@ -88,4 +94,3 @@ The script outputs the installation access token to stdout. If an error occurs, 
 
 - Build the project: `npm run build` (uses esbuild to create a bundled, self-contained script)
 - Run the script: `npm start`
-

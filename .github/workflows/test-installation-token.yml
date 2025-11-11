@@ -1,46 +1,44 @@
 name: Test Installation Token
 
 on:
-    pull_request:
-    push:
-        branches:
-            - main
+  pull_request:
+  push:
+    branches:
+      - main
 
 jobs:
-    test:
-        runs-on: ubuntu-latest
+  test:
+    runs-on: ubuntu-latest
 
-        steps:
-            - name: Checkout code
-              uses: actions/checkout@v4
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-            - name: Setup Node.js
-              uses: actions/setup-node@v4
-              with:
-                  node-version: "24"
-                  cache: "npm"
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: "npm"
 
-            - name: Install dependencies
-              run: npm ci
+      - name: Install dependencies
+        run: npm ci
 
-            - name: Build
-              run: npm run build
+      - name: Build
+        run: npm run build
 
-            - name: Generate token using GitHub Action
-              uses: actions/create-github-app-token@v2
-              id: app-token
-              with:
-                  app-id: ${{ secrets.TEST_GITHUB_APP_ID }}
-                  private-key: ${{ secrets.TEST_GITHUB_PRIVATE_KEY }}
-                  owner: ${{ vars.TEST_GITHUB_REPOSITORY_OWNER }}
-                  repositories: ${{ vars.TEST_GITHUB_REPOSITORY_NAME }}
+      - name: Generate token using GitHub Action
+        uses: actions/create-github-app-token@v2
+        id: app-token
+        with:
+          app-id: ${{ secrets.TEST_GITHUB_APP_ID }}
+          private-key: ${{ secrets.TEST_GITHUB_PRIVATE_KEY }}
+          owner: ${{ vars.TEST_GITHUB_REPOSITORY_OWNER }}
+          repositories: ${{ vars.TEST_GITHUB_REPOSITORY_NAME }}
 
-            - name: Run create-installation-token
-              env:
-                  GITHUB_APP_ID: ${{ secrets.TEST_GITHUB_APP_ID }}
-                  GITHUB_PRIVATE_KEY: ${{ secrets.TEST_GITHUB_PRIVATE_KEY }}
-                  GITHUB_CLIENT_ID: ${{ secrets.TEST_GITHUB_CLIENT_ID }}
-                  GITHUB_CLIENT_SECRET: ${{ secrets.TEST_GITHUB_CLIENT_SECRET }}
-                  GITHUB_REPOSITORY_OWNER: ${{ vars.TEST_GITHUB_REPOSITORY_OWNER }}
-                  GITHUB_REPOSITORY_NAME: ${{ vars.TEST_GITHUB_REPOSITORY_NAME }}
-              run: node dist/create-installation-token.js
+      - name: Run create-installation-token
+        env:
+          GITHUB_APP_ID: ${{ secrets.TEST_GITHUB_APP_ID }}
+          GITHUB_PRIVATE_KEY: ${{ secrets.TEST_GITHUB_PRIVATE_KEY }}
+          GITHUB_REPOSITORY_OWNER: ${{ vars.TEST_GITHUB_REPOSITORY_OWNER }}
+          GITHUB_REPOSITORY_NAME: ${{ vars.TEST_GITHUB_REPOSITORY_NAME }}
+        run: node dist/create-installation-token.js

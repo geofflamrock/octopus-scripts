@@ -1,20 +1,14 @@
 param(
-    [Parameter(Mandatory=$true)]
+    [Parameter(Mandatory = $true)]
     [string]$AppId,
-    
-    [Parameter(Mandatory=$true)]
+
+    [Parameter(Mandatory = $true)]
     [string]$PrivateKey,
-    
-    [Parameter(Mandatory=$true)]
-    [string]$ClientId,
-    
-    [Parameter(Mandatory=$true)]
-    [string]$ClientSecret,
-    
-    [Parameter(Mandatory=$true)]
+
+    [Parameter(Mandatory = $true)]
     [string]$RepositoryOwner,
-    
-    [Parameter(Mandatory=$true)]
+
+    [Parameter(Mandatory = $true)]
     [string]$RepositoryName
 )
 
@@ -34,13 +28,15 @@ if (-not (Test-Path $nodeScript)) {
 # Check if node is available
 try {
     $null = Get-Command node -ErrorAction Stop
-} catch {
+}
+catch {
     Write-Error "Node.js is not installed or not in PATH"
     exit 1
 }
 
+
 # Run the Node.js script with the provided arguments and capture the output
-$token = node $nodeScript $AppId $PrivateKey $ClientId $ClientSecret $RepositoryOwner $RepositoryName
+$token = node $nodeScript $AppId $PrivateKey $RepositoryOwner $RepositoryName
 
 # Check if the script executed successfully
 if ($LASTEXITCODE -ne 0) {
