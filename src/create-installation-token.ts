@@ -14,21 +14,23 @@ interface GitHubAppConfig {
   permissions?: string;
 }
 
-function parsePermissions(permissionsInput?: string): Record<string, string> | undefined {
+function parsePermissions(
+  permissionsInput?: string
+): Record<string, string> | undefined {
   if (!permissionsInput) {
     return undefined;
   }
 
   const permissions: Record<string, string> = {};
-  const lines = permissionsInput.trim().split('\n');
-  
+  const lines = permissionsInput.trim().split("\n");
+
   for (const line of lines) {
     const trimmedLine = line.trim();
     if (!trimmedLine) {
       continue; // Skip empty lines
     }
-    
-    const [permission, level] = trimmedLine.split(':');
+
+    const [permission, level] = trimmedLine.split(":");
     if (permission && level) {
       permissions[permission.trim()] = level.trim();
     }
@@ -40,7 +42,13 @@ function parsePermissions(permissionsInput?: string): Record<string, string> | u
 async function createInstallationAccessToken(
   config: GitHubAppConfig
 ): Promise<string> {
-  const { appId, privateKey, repositoryOwner, repositoryName, permissions: permissionsInput } = config;
+  const {
+    appId,
+    privateKey,
+    repositoryOwner,
+    repositoryName,
+    permissions: permissionsInput,
+  } = config;
 
   // Validate private key format
   if (!privateKey.includes("BEGIN") || !privateKey.includes("PRIVATE KEY")) {
@@ -92,10 +100,22 @@ async function createInstallationAccessToken(
   writeInfo(`  Token type: ${installationAuthentication.tokenType}`);
   writeInfo(`  Created at: ${installationAuthentication.createdAt}`);
   writeInfo(`  Expires at: ${installationAuthentication.expiresAt}`);
-  writeInfo(`  Permissions: ${JSON.stringify(installationAuthentication.permissions, null, 2)}`);
-  writeInfo(`  Repository selection: ${installationAuthentication.repositorySelection}`);
+  writeInfo(
+    `  Permissions: ${JSON.stringify(
+      installationAuthentication.permissions,
+      null,
+      2
+    )}`
+  );
+  writeInfo(
+    `  Repository selection: ${installationAuthentication.repositorySelection}`
+  );
   if (installationAuthentication.repositoryNames) {
-    writeInfo(`  Repository names: ${installationAuthentication.repositoryNames.join(', ')}`);
+    writeInfo(
+      `  Repository names: ${installationAuthentication.repositoryNames.join(
+        ", "
+      )}`
+    );
   }
 
   return installationAuthentication.token;
@@ -124,7 +144,9 @@ async function main() {
     console.error("  GITHUB_PRIVATE_KEY");
     console.error("  GITHUB_REPOSITORY_OWNER");
     console.error("  GITHUB_REPOSITORY_NAME");
-    console.error("  GITHUB_PERMISSIONS (optional, format: 'permission:level' per line)");
+    console.error(
+      "  GITHUB_PERMISSIONS (optional, format: 'permission:level' per line)"
+    );
     process.exit(1);
   }
 
@@ -138,7 +160,7 @@ async function main() {
     });
 
     // Set the token as an Octopus output variable
-    setOutputVariable("token", token, true);
+    setOutputVariable("token", token);
     writeInfo(`GitHub access token created successfully.`);
   } catch (error) {
     writeError(`Error creating installation access token: ${error}`);
