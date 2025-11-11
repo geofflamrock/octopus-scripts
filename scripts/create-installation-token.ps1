@@ -34,15 +34,10 @@ catch {
     exit 1
 }
 
-
-# Run the Node.js script with the provided arguments and capture the output
-$token = node $nodeScript $AppId $PrivateKey $RepositoryOwner $RepositoryName
+node $nodeScript $AppId $PrivateKey $RepositoryOwner $RepositoryName
 
 # Check if the script executed successfully
 if ($LASTEXITCODE -ne 0) {
     Write-Error "Failed to create installation access token"
     exit $LASTEXITCODE
 }
-
-# Export the token as an Octopus Deploy output variable
-Set-OctopusVariable -name "token" -value $token -sensitive
