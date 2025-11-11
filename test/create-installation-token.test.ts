@@ -63,12 +63,23 @@ describe("createInstallationAccessToken", () => {
     const mockAppToken = "ghs_mockAppToken123";
     const mockInstallationToken = "ghs_mockInstallationToken456";
     const mockInstallationId = 12345;
+    const mockInstallationAuth = {
+      token: mockInstallationToken,
+      tokenType: "installation",
+      createdAt: "2024-01-01T00:00:00Z",
+      expiresAt: "2024-01-01T01:00:00Z",
+      permissions: {
+        contents: "read",
+        metadata: "read",
+      },
+      repositorySelection: "selected",
+    };
 
     // Mock the createAppAuth function
     const mockAuth = vi
       .fn()
       .mockResolvedValueOnce({ token: mockAppToken }) // First call for app authentication
-      .mockResolvedValueOnce({ token: mockInstallationToken }); // Second call for installation authentication
+      .mockResolvedValueOnce(mockInstallationAuth); // Second call for installation authentication
 
     (createAppAuth as any).mockReturnValue(mockAuth);
 
@@ -158,7 +169,14 @@ describe("createInstallationAccessToken", () => {
     const mockAuth = vi
       .fn()
       .mockResolvedValueOnce({ token: mockAppToken })
-      .mockResolvedValueOnce({ token: mockInstallationToken });
+      .mockResolvedValueOnce({
+        token: mockInstallationToken,
+        tokenType: "installation",
+        createdAt: "2024-01-01T00:00:00Z",
+        expiresAt: "2024-01-01T01:00:00Z",
+        permissions: {},
+        repositorySelection: "selected",
+      });
 
     (createAppAuth as any).mockReturnValue(mockAuth);
 
@@ -215,7 +233,14 @@ describe("createInstallationAccessToken", () => {
     const mockAuth = vi
       .fn()
       .mockResolvedValueOnce({ token: mockAppToken })
-      .mockResolvedValueOnce({ token: mockInstallationToken });
+      .mockResolvedValueOnce({
+        token: mockInstallationToken,
+        tokenType: "installation",
+        createdAt: "2024-01-01T00:00:00Z",
+        expiresAt: "2024-01-01T01:00:00Z",
+        permissions: {},
+        repositorySelection: "selected",
+      });
 
     (createAppAuth as any).mockReturnValue(mockAuth);
 
@@ -250,7 +275,17 @@ describe("createInstallationAccessToken", () => {
     const mockAuth = vi
       .fn()
       .mockResolvedValueOnce({ token: mockAppToken })
-      .mockResolvedValueOnce({ token: mockInstallationToken });
+      .mockResolvedValueOnce({
+        token: mockInstallationToken,
+        tokenType: "installation",
+        createdAt: "2024-01-01T00:00:00Z",
+        expiresAt: "2024-01-01T01:00:00Z",
+        permissions: {
+          contents: "write",
+          pull_requests: "read",
+        },
+        repositorySelection: "selected",
+      });
 
     (createAppAuth as any).mockReturnValue(mockAuth);
 
@@ -285,7 +320,14 @@ describe("createInstallationAccessToken", () => {
     const mockAuth = vi
       .fn()
       .mockResolvedValueOnce({ token: mockAppToken })
-      .mockResolvedValueOnce({ token: mockInstallationToken });
+      .mockResolvedValueOnce({
+        token: mockInstallationToken,
+        tokenType: "installation",
+        createdAt: "2024-01-01T00:00:00Z",
+        expiresAt: "2024-01-01T01:00:00Z",
+        permissions: {},
+        repositorySelection: "selected",
+      });
 
     (createAppAuth as any).mockReturnValue(mockAuth);
 
@@ -320,7 +362,16 @@ describe("createInstallationAccessToken", () => {
     const mockAuth = vi
       .fn()
       .mockResolvedValueOnce({ token: mockAppToken })
-      .mockResolvedValueOnce({ token: mockInstallationToken });
+      .mockResolvedValueOnce({
+        token: mockInstallationToken,
+        tokenType: "installation",
+        createdAt: "2024-01-01T00:00:00Z",
+        expiresAt: "2024-01-01T01:00:00Z",
+        permissions: {
+          contents: "write",
+        },
+        repositorySelection: "selected",
+      });
 
     (createAppAuth as any).mockReturnValue(mockAuth);
 

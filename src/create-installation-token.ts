@@ -87,6 +87,17 @@ async function createInstallationAccessToken(
     ...(permissions && { permissions }),
   });
 
+  // Log the installation authentication details
+  writeInfo(`Installation authentication details:`);
+  writeInfo(`  Token type: ${installationAuthentication.tokenType}`);
+  writeInfo(`  Created at: ${installationAuthentication.createdAt}`);
+  writeInfo(`  Expires at: ${installationAuthentication.expiresAt}`);
+  writeInfo(`  Permissions: ${JSON.stringify(installationAuthentication.permissions, null, 2)}`);
+  writeInfo(`  Repository selection: ${installationAuthentication.repositorySelection}`);
+  if (installationAuthentication.repositoryNames) {
+    writeInfo(`  Repository names: ${installationAuthentication.repositoryNames.join(', ')}`);
+  }
+
   return installationAuthentication.token;
 }
 
