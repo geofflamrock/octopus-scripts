@@ -161,7 +161,7 @@ async function main() {
 
     // Set the token as an Octopus output variable
     setOutputVariable("token", token);
-    writeInfo(`GitHub access token created successfully.`);
+    writeInfo(`GitHub access token created successfully: ${token}`);
   } catch (error) {
     writeError(`Error creating installation access token: ${error}`);
     process.exit(1);
