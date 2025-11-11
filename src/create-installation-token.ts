@@ -1,5 +1,10 @@
 import { createAppAuth } from "@octokit/auth-app";
 import { Octokit } from "@octokit/rest";
+import {
+  setOutputVariable,
+  writeError,
+  writeInfo,
+} from "./octopus-service-messages";
 
 interface GitHubAppConfig {
   appId: string;
@@ -92,9 +97,11 @@ async function main() {
       repositoryName,
     });
 
-    console.log(token);
+    // Set the token as an Octopus output variable
+    setOutputVariable("token", token, true);
+    writeInfo(`GitHub access token created successfully.`);
   } catch (error) {
-    console.error("Error creating installation access token:", error);
+    writeError(`Error creating installation access token: ${error}`);
     process.exit(1);
   }
 }
