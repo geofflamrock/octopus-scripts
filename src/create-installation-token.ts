@@ -96,9 +96,7 @@ async function createInstallationAccessToken(
   });
 
   // Log the installation authentication details
-  writeInfo(`Installation authentication details:`);
-  writeInfo(`  Token type: ${installationAuthentication.tokenType}`);
-  writeInfo(`  Created at: ${installationAuthentication.createdAt}`);
+  writeInfo(`GitHub installation access token created successfully:`);
   writeInfo(`  Expires at: ${installationAuthentication.expiresAt}`);
   writeInfo(
     `  Permissions: ${JSON.stringify(
@@ -160,8 +158,7 @@ async function main() {
     });
 
     // Set the token as an Octopus output variable
-    setOutputVariable("token", token);
-    writeInfo(`GitHub access token created successfully: ${token}`);
+    setOutputVariable("token", token, true);
   } catch (error) {
     writeError(`Error creating installation access token: ${error}`);
     process.exit(1);
