@@ -87,11 +87,12 @@ async function createInstallationAccessToken(
     );
   }
 
-  // Get the installation access token
+  // Get the installation access token, restricted to the specific repository
   const permissions = parsePermissions(permissionsInput);
   const installationAuthentication = await auth({
     type: "installation",
     installationId,
+    repositories: [repositoryName],
     ...(permissions && { permissions }),
   });
 
