@@ -11,12 +11,44 @@ interface GitHubAppConfig {
   privateKey: string;
   repositoryOwner: string;
   repositoryName: string;
+  permissions?: string;
+}
+
+function parsePermissions(
+  permissionsInput?: string
+): Record<string, string> | undefined {
+  if (!permissionsInput) {
+    return undefined;
+  }
+
+  const permissions: Record<string, string> = {};
+  const lines = permissionsInput.trim().split("\n");
+
+  for (const line of lines) {
+    const trimmedLine = line.trim();
+    if (!trimmedLine) {
+      continue; // Skip empty lines
+    }
+
+    const [permission, level] = trimmedLine.split(":");
+    if (permission && level) {
+      permissions[permission.trim()] = level.trim();
+    }
+  }
+
+  return Object.keys(permissions).length > 0 ? permissions : undefined;
 }
 
 async function createInstallationAccessToken(
   config: GitHubAppConfig
 ): Promise<string> {
-  const { appId, privateKey, repositoryOwner, repositoryName } = config;
+  const {
+    appId,
+    privateKey,
+    repositoryOwner,
+    repositoryName,
+    permissions: permissionsInput,
+  } = config;
 
   // Validate private key format
   if (!privateKey.includes("BEGIN") || !privateKey.includes("PRIVATE KEY")) {
@@ -56,10 +88,33 @@ async function createInstallationAccessToken(
   }
 
   // Get the installation access token
+  const permissions = parsePermissions(permissionsInput);
   const installationAuthentication = await auth({
     type: "installation",
     installationId,
+    ...(permissions && { permissions }),
   });
+
+  // Log the installation authentication details
+  writeInfo(`GitHub installation access token created successfully:`);
+  writeInfo(`  Expires at: ${installationAuthentication.expiresAt}`);
+  writeInfo(
+    `  Permissions: ${JSON.stringify(
+      installationAuthentication.permissions,
+      null,
+      2
+    )}`
+  );
+  writeInfo(
+    `  Repository selection: ${installationAuthentication.repositorySelection}`
+  );
+  if (installationAuthentication.repositoryNames) {
+    writeInfo(
+      `  Repository names: ${installationAuthentication.repositoryNames.join(
+        ", "
+      )}`
+    );
+  }
 
   return installationAuthentication.token;
 }
@@ -71,6 +126,7 @@ async function main() {
   const repositoryOwner =
     process.env.GITHUB_REPOSITORY_OWNER || process.argv[4];
   const repositoryName = process.env.GITHUB_REPOSITORY_NAME || process.argv[5];
+  const permissions = process.env.GITHUB_PERMISSIONS || process.argv[6];
 
   // Validate all required parameters are provided
   if (!appId || !privateKey || !repositoryOwner || !repositoryName) {
@@ -78,7 +134,7 @@ async function main() {
     console.error("");
     console.error("Usage:");
     console.error(
-      "  node dist/create-installation-token.js <appId> <privateKey> <repositoryOwner> <repositoryName>"
+      "  node dist/create-installation-token.js <appId> <privateKey> <repositoryOwner> <repositoryName> [permissions]"
     );
     console.error("");
     console.error("Or set environment variables:");
@@ -86,6 +142,9 @@ async function main() {
     console.error("  GITHUB_PRIVATE_KEY");
     console.error("  GITHUB_REPOSITORY_OWNER");
     console.error("  GITHUB_REPOSITORY_NAME");
+    console.error(
+      "  GITHUB_PERMISSIONS (optional, format: 'permission:level' per line)"
+    );
     process.exit(1);
   }
 
@@ -95,11 +154,11 @@ async function main() {
       privateKey,
       repositoryOwner,
       repositoryName,
+      permissions,
     });
 
     // Set the token as an Octopus output variable
     setOutputVariable("token", token, true);
-    writeInfo(`GitHub access token created successfully.`);
   } catch (error) {
     writeError(`Error creating installation access token: ${error}`);
     process.exit(1);
@@ -111,4 +170,4 @@ if (require.main === module) {
   main();
 }
 
-export { createInstallationAccessToken, GitHubAppConfig };
+export { createInstallationAccessToken, GitHubAppConfig, parsePermissions };

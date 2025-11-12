@@ -28,11 +28,3 @@ jobs:
 
       - name: Run tests
         run: npm run test
-
-      - name: Run create-installation-token
-        env:
-          GITHUB_APP_ID: ${{ secrets.TEST_GITHUB_APP_ID }}
-          GITHUB_PRIVATE_KEY: ${{ secrets.TEST_GITHUB_PRIVATE_KEY }}
-          GITHUB_REPOSITORY_OWNER: ${{ vars.TEST_GITHUB_REPOSITORY_OWNER }}
-          GITHUB_REPOSITORY_NAME: ${{ vars.TEST_GITHUB_REPOSITORY_NAME }}
-        run: node dist/create-installation-token.js

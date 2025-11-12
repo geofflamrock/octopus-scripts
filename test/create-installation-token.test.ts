@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import {
   createInstallationAccessToken,
   GitHubAppConfig,
+  parsePermissions,
 } from "../src/create-installation-token";
 
 // Mock the Octokit modules
@@ -62,12 +63,23 @@ describe("createInstallationAccessToken", () => {
     const mockAppToken = "ghs_mockAppToken123";
     const mockInstallationToken = "ghs_mockInstallationToken456";
     const mockInstallationId = 12345;
+    const mockInstallationAuth = {
+      token: mockInstallationToken,
+      tokenType: "installation",
+      createdAt: "2024-01-01T00:00:00Z",
+      expiresAt: "2024-01-01T01:00:00Z",
+      permissions: {
+        contents: "read",
+        metadata: "read",
+      },
+      repositorySelection: "selected",
+    };
 
     // Mock the createAppAuth function
     const mockAuth = vi
       .fn()
       .mockResolvedValueOnce({ token: mockAppToken }) // First call for app authentication
-      .mockResolvedValueOnce({ token: mockInstallationToken }); // Second call for installation authentication
+      .mockResolvedValueOnce(mockInstallationAuth); // Second call for installation authentication
 
     (createAppAuth as any).mockReturnValue(mockAuth);
 
@@ -157,7 +169,14 @@ describe("createInstallationAccessToken", () => {
     const mockAuth = vi
       .fn()
       .mockResolvedValueOnce({ token: mockAppToken })
-      .mockResolvedValueOnce({ token: mockInstallationToken });
+      .mockResolvedValueOnce({
+        token: mockInstallationToken,
+        tokenType: "installation",
+        createdAt: "2024-01-01T00:00:00Z",
+        expiresAt: "2024-01-01T01:00:00Z",
+        permissions: {},
+        repositorySelection: "selected",
+      });
 
     (createAppAuth as any).mockReturnValue(mockAuth);
 
@@ -214,7 +233,14 @@ describe("createInstallationAccessToken", () => {
     const mockAuth = vi
       .fn()
       .mockResolvedValueOnce({ token: mockAppToken })
-      .mockResolvedValueOnce({ token: mockInstallationToken });
+      .mockResolvedValueOnce({
+        token: mockInstallationToken,
+        tokenType: "installation",
+        createdAt: "2024-01-01T00:00:00Z",
+        expiresAt: "2024-01-01T01:00:00Z",
+        permissions: {},
+        repositorySelection: "selected",
+      });
 
     (createAppAuth as any).mockReturnValue(mockAuth);
 
@@ -233,5 +259,205 @@ describe("createInstallationAccessToken", () => {
     await createInstallationAccessToken(mockConfig);
 
     expect(capturedAuth).toBe(mockAppToken);
+  });
+
+  it("should pass permissions to auth when provided", async () => {
+    const mockAppToken = "ghs_mockAppToken123";
+    const mockInstallationToken = "ghs_mockInstallationToken456";
+    const mockInstallationId = 12345;
+    const permissionsInput = "contents:write\npull_requests:read";
+
+    const configWithPermissions = {
+      ...mockConfig,
+      permissions: permissionsInput,
+    };
+
+    const mockAuth = vi
+      .fn()
+      .mockResolvedValueOnce({ token: mockAppToken })
+      .mockResolvedValueOnce({
+        token: mockInstallationToken,
+        tokenType: "installation",
+        createdAt: "2024-01-01T00:00:00Z",
+        expiresAt: "2024-01-01T01:00:00Z",
+        permissions: {
+          contents: "write",
+          pull_requests: "read",
+        },
+        repositorySelection: "selected",
+      });
+
+    (createAppAuth as any).mockReturnValue(mockAuth);
+
+    const mockGetRepoInstallation = vi.fn().mockResolvedValue({
+      data: { id: mockInstallationId },
+    });
+
+    (Octokit as any).mockImplementation(function (this: any) {
+      this.apps = {
+        getRepoInstallation: mockGetRepoInstallation,
+      };
+    });
+
+    const token = await createInstallationAccessToken(configWithPermissions);
+
+    expect(token).toBe(mockInstallationToken);
+    expect(mockAuth).toHaveBeenNthCalledWith(2, {
+      type: "installation",
+      installationId: mockInstallationId,
+      permissions: {
+        contents: "write",
+        pull_requests: "read",
+      },
+    });
+  });
+
+  it("should not pass permissions object when permissions is undefined", async () => {
+    const mockAppToken = "ghs_mockAppToken123";
+    const mockInstallationToken = "ghs_mockInstallationToken456";
+    const mockInstallationId = 12345;
+
+    const mockAuth = vi
+      .fn()
+      .mockResolvedValueOnce({ token: mockAppToken })
+      .mockResolvedValueOnce({
+        token: mockInstallationToken,
+        tokenType: "installation",
+        createdAt: "2024-01-01T00:00:00Z",
+        expiresAt: "2024-01-01T01:00:00Z",
+        permissions: {},
+        repositorySelection: "selected",
+      });
+
+    (createAppAuth as any).mockReturnValue(mockAuth);
+
+    const mockGetRepoInstallation = vi.fn().mockResolvedValue({
+      data: { id: mockInstallationId },
+    });
+
+    (Octokit as any).mockImplementation(function (this: any) {
+      this.apps = {
+        getRepoInstallation: mockGetRepoInstallation,
+      };
+    });
+
+    await createInstallationAccessToken(mockConfig);
+
+    expect(mockAuth).toHaveBeenNthCalledWith(2, {
+      type: "installation",
+      installationId: mockInstallationId,
+    });
+  });
+
+  it("should handle single-line permissions", async () => {
+    const mockAppToken = "ghs_mockAppToken123";
+    const mockInstallationToken = "ghs_mockInstallationToken456";
+    const mockInstallationId = 12345;
+
+    const configWithSinglePermission = {
+      ...mockConfig,
+      permissions: "contents:write",
+    };
+
+    const mockAuth = vi
+      .fn()
+      .mockResolvedValueOnce({ token: mockAppToken })
+      .mockResolvedValueOnce({
+        token: mockInstallationToken,
+        tokenType: "installation",
+        createdAt: "2024-01-01T00:00:00Z",
+        expiresAt: "2024-01-01T01:00:00Z",
+        permissions: {
+          contents: "write",
+        },
+        repositorySelection: "selected",
+      });
+
+    (createAppAuth as any).mockReturnValue(mockAuth);
+
+    const mockGetRepoInstallation = vi.fn().mockResolvedValue({
+      data: { id: mockInstallationId },
+    });
+
+    (Octokit as any).mockImplementation(function (this: any) {
+      this.apps = {
+        getRepoInstallation: mockGetRepoInstallation,
+      };
+    });
+
+    await createInstallationAccessToken(configWithSinglePermission);
+
+    expect(mockAuth).toHaveBeenNthCalledWith(2, {
+      type: "installation",
+      installationId: mockInstallationId,
+      permissions: {
+        contents: "write",
+      },
+    });
+  });
+});
+
+describe("parsePermissions", () => {
+  it("should parse single permission correctly", () => {
+    const result = parsePermissions("contents:write");
+    expect(result).toEqual({ contents: "write" });
+  });
+
+  it("should parse multiple permissions correctly", () => {
+    const result = parsePermissions("contents:write\npull_requests:read");
+    expect(result).toEqual({
+      contents: "write",
+      pull_requests: "read",
+    });
+  });
+
+  it("should parse multiple permissions with different levels", () => {
+    const result = parsePermissions(
+      "contents:write\nissues:read\npull_requests:write"
+    );
+    expect(result).toEqual({
+      contents: "write",
+      issues: "read",
+      pull_requests: "write",
+    });
+  });
+
+  it("should handle empty lines in permissions input", () => {
+    const result = parsePermissions("contents:write\n\npull_requests:read");
+    expect(result).toEqual({
+      contents: "write",
+      pull_requests: "read",
+    });
+  });
+
+  it("should trim whitespace from permission names and levels", () => {
+    const result = parsePermissions("  contents : write  \n  issues : read  ");
+    expect(result).toEqual({
+      contents: "write",
+      issues: "read",
+    });
+  });
+
+  it("should return undefined for empty string", () => {
+    const result = parsePermissions("");
+    expect(result).toBeUndefined();
+  });
+
+  it("should return undefined for undefined input", () => {
+    const result = parsePermissions(undefined);
+    expect(result).toBeUndefined();
+  });
+
+  it("should return undefined for string with only whitespace", () => {
+    const result = parsePermissions("   \n   \n   ");
+    expect(result).toBeUndefined();
+  });
+
+  it("should skip lines without colon separator", () => {
+    const result = parsePermissions("contents:write\ninvalid_line\nissues:read");
+    expect(result).toEqual({
+      contents: "write",
+      issues: "read",
+    });
   });
 });

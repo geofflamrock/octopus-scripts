@@ -9,7 +9,10 @@ param(
     [string]$RepositoryOwner,
 
     [Parameter(Mandatory = $true)]
-    [string]$RepositoryName
+    [string]$RepositoryName,
+
+    [Parameter(Mandatory = $false)]
+    [string]$Permissions
 )
 
 # Get the script's directory and navigate to the repository root
@@ -34,7 +37,7 @@ catch {
     exit 1
 }
 
-node $nodeScript $AppId $PrivateKey $RepositoryOwner $RepositoryName
+node $nodeScript $AppId $PrivateKey $RepositoryOwner $RepositoryName $Permissions
 
 # Check if the script executed successfully
 if ($LASTEXITCODE -ne 0) {
