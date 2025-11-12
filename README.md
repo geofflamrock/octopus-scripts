@@ -39,7 +39,23 @@ The script accepts GitHub App credentials either through command-line arguments 
 
 #### Using PowerShell (Windows)
 
-A PowerShell wrapper script is provided for convenience:
+##### Generic Script Runner
+
+A generic PowerShell script runner is provided to execute any Node.js script in this repository:
+
+```powershell
+.\scripts\run-script.ps1 <relativeScriptPath> [script arguments...]
+```
+
+Example:
+
+```powershell
+.\scripts\run-script.ps1 "dist\create-installation-token.js" "123456" "-----BEGIN RSA PRIVATE KEY-----..." "octocat" "Hello-World"
+```
+
+##### Create Installation Token Script
+
+A convenience wrapper script is provided for creating GitHub App installation tokens:
 
 ```powershell
 .\scripts\create-installation-token.ps1 -AppId <appId> -PrivateKey <privateKey> -RepositoryOwner <owner> -RepositoryName <name> [-Permissions <permissions>]
