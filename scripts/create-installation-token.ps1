@@ -15,29 +15,19 @@ param(
     [string]$Permissions
 )
 
-# Get the script's directory and navigate to the repository root
-$scriptPath = Split-Path -Parent $MyInvocation.MyCommand.Path
-$repoRoot = Split-Path -Parent $scriptPath
+# Get the script's directory
+$scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 
-# Path to the Node.js script
-$nodeScript = Join-Path $repoRoot "dist\create-installation-token.js"
+# Path to the generic run-script.ps1
+$runScript = Join-Path $scriptDir "run-script.ps1"
 
-# Check if the Node.js script exists
-if (-not (Test-Path $nodeScript)) {
-    Write-Error "Node.js script not found at: $nodeScript"
-    exit 1
+# Call the generic script runner with the create-installation-token.js script and arguments
+if ($Permissions) {
+    & $runScript "dist\create-installation-token.js" $AppId $PrivateKey $RepositoryOwner $RepositoryName $Permissions
 }
-
-# Check if node is available
-try {
-    $null = Get-Command node -ErrorAction Stop
+else {
+    & $runScript "dist\create-installation-token.js" $AppId $PrivateKey $RepositoryOwner $RepositoryName
 }
-catch {
-    Write-Error "Node.js is not installed or not in PATH"
-    exit 1
-}
-
-node $nodeScript $AppId $PrivateKey $RepositoryOwner $RepositoryName $Permissions
 
 # Check if the script executed successfully
 if ($LASTEXITCODE -ne 0) {
