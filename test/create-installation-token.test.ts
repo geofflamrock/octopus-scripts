@@ -348,6 +348,7 @@ describe("createInstallationAccessToken", () => {
         contents: "write",
         pull_requests: "read",
       },
+      repositories: [mockConfig.repositoryName],
     });
   });
 
@@ -385,6 +386,7 @@ describe("createInstallationAccessToken", () => {
     expect(mockAuth).toHaveBeenNthCalledWith(2, {
       type: "installation",
       installationId: mockInstallationId,
+      repositories: [mockConfig.repositoryName],
     });
   });
 
@@ -432,6 +434,7 @@ describe("createInstallationAccessToken", () => {
       permissions: {
         contents: "write",
       },
+      repositories: [mockConfig.repositoryName],
     });
   });
 });
