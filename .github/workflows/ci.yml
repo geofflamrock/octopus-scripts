@@ -42,4 +42,4 @@ jobs:
           dotnet-version: "10.0.x"
 
       - name: Run script
-        run: scripts/hello-world.cs
+        run: chmod +x hello-world.cs && scripts/hello-world.cs
